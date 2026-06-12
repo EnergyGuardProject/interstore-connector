@@ -1,4 +1,4 @@
-# Interstore Connector — Deployment Notes
+# Interstore Connector - Deployment Notes
 
 Setup and configuration reference for the Interstore Data Space Connector deployed on `energyguard.epu.ntua.gr`.
 
@@ -11,7 +11,6 @@ Setup and configuration reference for the Interstore Data Space Connector deploy
 | Connector UI | https://interstore-connector-ui.energy-guard.eu | HTTPS via nginx proxy |
 | Local API | https://interstore-connector-api.energy-guard.eu/api | Used in connector UI settings |
 | ECC (inter-connector) | https://interstore-connector-ecc.energy-guard.eu/data | Used in connector UI settings |
-| ECC (direct) | https://energyguard.epu.ntua.gr:8889 | Port 8889 open in UFW |
 
 ---
 
@@ -32,6 +31,8 @@ Add network to service recipes in `docker-compose.yml`:
 ```yaml
 networks:
   - nginxproxy_energyguard_net
+
+...
 
 networks:
   nginxproxy_energyguard_net:
@@ -63,7 +64,8 @@ networks:
 [16] 8889/tcp (v6)              ALLOW IN    Anywhere (v6)             
 [17] 8082 (v6)                  ALLOW IN    Anywhere (v6)             
 [18] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
-[19] 30001/tcp (v6)             ALLOW IN    Anywhere (v6)```
+[19] 30001/tcp (v6)             ALLOW IN    Anywhere (v6)
+```
 
 ---
 
@@ -78,21 +80,22 @@ networks:
 - SSL tab > Request a new SSL certificate > enable Force SSL
 - Click Save
 
-**2. Local API - 30001**
-- Proxy Hosts > Add Proxy Host
-- Domain Names: `interstore-connector-api.energy-guard.eu`
-- Scheme: `http`
-- Forward Hostname/IP: `local-api`
-- Forward Port: `30001`
-- SSL tab > Request new certificate > Force SSL on
-- Save
-
-**3. Execution Core Container (ECC) - 8889**
+**2. Execution Core Container (ECC) - 8889**
 - Proxy Hosts > Add Proxy Host
 - Domain Names: `interstore-connector-ecc.energy-guard.eu`
 - Scheme: `https`
 - Forward Hostname/IP: `ecc-provider`
 - Forward Port: `8889`
+- SSL tab > Request new certificate > Force SSL on
+- Save
+
+
+**3. Local API - 30001**
+- Proxy Hosts > Add Proxy Host
+- Domain Names: `interstore-connector-api.energy-guard.eu`
+- Scheme: `http`
+- Forward Hostname/IP: `local-api`
+- Forward Port: `30001`
 - SSL tab > Request new certificate > Force SSL on
 - Save
 
@@ -110,7 +113,7 @@ networks:
 
 ## Connectivity Check
 
-To verify inter-connector connectivity with a remote TEF node (URL provided by ED):
+To verify inter-connector connectivity with a our remote connector:
 
 Sanity check based on INSTALLATION.md:
 
