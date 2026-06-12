@@ -11,7 +11,6 @@ Setup and configuration reference for the Interstore Data Space Connector deploy
 | Connector UI | https://interstore-connector-ui.energy-guard.eu | HTTPS via nginx proxy |
 | Local API | https://interstore-connector-api.energy-guard.eu/api | Used in connector UI settings |
 | ECC (inter-connector) | https://interstore-connector-ecc.energy-guard.eu/data | Used in connector UI settings |
-| Dataapp Provider | https://interstore-connector-dataapp-provider.energy-guard.eu | Used in connector UI settings |
 | ECC (direct) | https://energyguard.epu.ntua.gr:8889 | Port 8889 open in UFW |
 
 ---
@@ -22,14 +21,13 @@ Setup and configuration reference for the Interstore Data Space Connector deploy
 |---|---|---|
 | 8080 | connector-ui | Makes the connector dashboard accessible over HTTPS. Allows the UI to call the local API from a secure context. |
 | 8889 | ecc-provider | Makes your connector reachable by remote TEF nodes for contract negotiation and data transfer. |
-| 8090 | ecc-provider | Exposes the public REST API so remote TEF nodes can discover what data you offer. |
 | 30001 | local-api | Proxies the local API to HTTPS so the UI (secure context) can call it without CORS errors. |
 
 ---
 
 ## Docker Network
 
-Add to `local-api`, `connector-ui`, and `ecc-provider` services in `docker-compose.yml`:
+Add network to service recipes in `docker-compose.yml`:
 
 ```yaml
 networks:
@@ -47,25 +45,29 @@ networks:
 ```
      To                         Action      From
      --                         ------      ----
-[ 1] 22                         ALLOW IN    147.102.6.0/24
-[ 2] 22                         ALLOW IN    147.102.131.0/24
-[ 3] 22                         ALLOW IN    147.102.136.0/26
-[ 4] 7474/tcp                   ALLOW IN    Anywhere
-[ 5] 7687/tcp                   ALLOW IN    Anywhere
-[ 6] 5000                       DENY IN     Anywhere
-[ 7] 443                        ALLOW IN    Anywhere
-[ 8] 8889/tcp                   ALLOW IN    Anywhere
-[ 9] 8090/tcp                   ALLOW IN    Anywhere
-[10] 8082                       ALLOW IN    Anywhere
-[11] 80/tcp                     ALLOW IN    Anywhere
-[12] 30001/tcp                  ALLOW IN    Anywhere
-```
+[ 1] 22                         ALLOW IN    147.102.6.0/24            
+[ 2] 22                         ALLOW IN    147.102.131.0/24          
+[ 3] 22                         ALLOW IN    147.102.136.0/26          
+[ 4] 7474/tcp                   ALLOW IN    Anywhere                  
+[ 5] 7687/tcp                   ALLOW IN    Anywhere                  
+[ 6] 5000                       DENY IN     Anywhere                  
+[ 7] 443                        ALLOW IN    Anywhere                  
+[ 8] 8889/tcp                   ALLOW IN    Anywhere                  
+[ 9] 8082                       ALLOW IN    Anywhere                  
+[10] 80/tcp                     ALLOW IN    Anywhere                  
+[11] 30001/tcp                  ALLOW IN    Anywhere                  
+[12] 7474/tcp (v6)              ALLOW IN    Anywhere (v6)             
+[13] 7687/tcp (v6)              ALLOW IN    Anywhere (v6)             
+[14] 5000 (v6)                  DENY IN     Anywhere (v6)             
+[15] 443 (v6)                   ALLOW IN    Anywhere (v6)             
+[16] 8889/tcp (v6)              ALLOW IN    Anywhere (v6)             
+[17] 8082 (v6)                  ALLOW IN    Anywhere (v6)             
+[18] 80/tcp (v6)                ALLOW IN    Anywhere (v6)             
+[19] 30001/tcp (v6)             ALLOW IN    Anywhere (v6)```
 
 ---
 
-## Nginx Proxy Manager
-
-### Proxy Hosts
+## Nginx Proxy Manager - Proxy Hosts
 
 **1. Connector UI - 8080**
 - Click Proxy Hosts > Add Proxy Host
@@ -88,40 +90,11 @@ networks:
 **3. Execution Core Container (ECC) - 8889**
 - Proxy Hosts > Add Proxy Host
 - Domain Names: `interstore-connector-ecc.energy-guard.eu`
-- Scheme: `http`
+- Scheme: `https`
 - Forward Hostname/IP: `ecc-provider`
 - Forward Port: `8889`
 - SSL tab > Request new certificate > Force SSL on
-- Advanced tab > add: `proxy_ssl_verify off;`
 - Save
-
-**4. Dataapp Provider - 8083**
-- Proxy Hosts > Add Proxy Host
-- Domain Names: `interstore-connector-dataapp-provider.energy-guard.eu`
-- Scheme: `https`
-- Forward Hostname/IP: `be-dataapp-provider`
-- Forward Port: `8083`
-- SSL tab > Request new certificate > Force SSL on
-- Advanced tab > add: `proxy_ssl_verify off;`
-- Save
-
-### Streams
-
-**5. ECC inter-connector - 8889**
-- Click Streams > Add Stream
-- Incoming Port: `8889`
-- Forward Host: `ecc-provider`
-- Forward Port: `8889`
-- TCP selected, UDP off
-- Click Save
-
-**6. ECC public API - 8090 → 8449**
-- Click Streams > Add Stream
-- Incoming Port: `8090`
-- Forward Host: `ecc-provider`
-- Forward Port: `8449`
-- TCP selected, UDP off
-- Click Save
 
 ---
 
@@ -129,7 +102,7 @@ networks:
 
 ```
 - Local API URL: https://interstore-connector-api.energy-guard.eu/api
-- Data App URL: https://interstore-connector-dataapp-provider.energy-guard.eu
+- Data App URL: https://be-dataapp-provider:8083
 - ECC URL: https://interstore-connector-ecc.energy-guard.eu/data
 ```
 
@@ -176,4 +149,4 @@ $ curl -k -v https://interstore-connector-api.energy-guard.eu/api
 * Connection #0 to host interstore-connector-api.energy-guard.eu:443 left intact
 ```
 
-A successful response returns `HTTP/2 302`. A `400/401/404` indicates a firewall or configuration issue.
+A successful response returns `302`. A `400/401/404` indicates a firewall or configuration issue.

@@ -90,9 +90,9 @@ docker compose up -d –build
 
 9. Then in the connector settings put.
 ```
-•	Local API: https:// your_localapi_public_url/api
-•	Data app: https://be-dataapp-provider:8083 
-•	ECC URL: https://your_ecc_public_url/data 
+•	Local API: https:// your_localapi_public_url/api (30001)
+•	Data app: https://be-dataapp-provider:8083 (8083)
+•	ECC URL: https://your_ecc_public_url/data (8889)
 ```
 
 10. Reach a TEF node already having the connector to make a data transfer between your connector and theirs.
